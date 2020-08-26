@@ -68,6 +68,19 @@ user_pref("browser.send_pings.require_same_host", true);
  * [2] https://www.internetsociety.org/tag/ipv6-security/ (see Myths 2,4,5,6) ***/
 user_pref("network.dns.disableIPv6", true);
 
+/* 1003: disable memory cache
+ * capacity: -1=determine dynamically (default), 0=none, n=memory capacity in kibibytes ***/
+user_pref("browser.cache.memory.enable", false);
+user_pref("browser.cache.memory.capacity", 0); // [HIDDEN PREF ESR]
+/* 1006: disable permissions manager from writing to disk [RESTART]
+ * [NOTE] This means any permission changes are session only
+ * [1] https://bugzilla.mozilla.org/967812 ***/
+user_pref("permissions.memory_only", true); // [HIDDEN PREF]
+/* 1007: disable media cache from writing to disk in Private Browsing
+ * [NOTE] MSE (Media Source Extensions) are already stored in-memory in PB ***/
+user_pref("browser.privatebrowsing.forceMediaMemoryCache", true); // [FF75+]
+user_pref("media.memory_cache_max_size", 65536);
+
 /* 1201: require safe negotiation
  * Blocks connections to servers that don't support RFC 5746 [2] as they're potentially
  * vulnerable to a MiTM attack [3]. A server *without* RFC 5746 can be safe from the attack
@@ -137,8 +150,22 @@ user_pref("privacy.clearOnShutdown.offlineApps", true); // Offline Website Data
 
 /* 4001: enable First Party Isolation [FF51+]
  * [SETUP-WEB] May break cross-domain logins and site functionality until perfected
- * [1] https://bugzilla.mozilla.org/1260931 ***/
+ * [1] https://bugzilla.mozilla.org/1260931
+ * [2] https://bugzilla.mozilla.org/1299996 [META] ***/
 user_pref("privacy.firstparty.isolate", true);
+/* 4002: enforce FPI restriction for window.opener [FF54+]
+ * [NOTE] Setting this to false may reduce the breakage in 4001
+ * FF65+ blocks postMessage with targetOrigin "*" if originAttributes don't match. But
+ * to reduce breakage it ignores the 1st-party domain (FPD) originAttribute, see [2],[3]
+ * The 2nd pref removes that limitation and will only allow communication if FPDs also match.
+ * [1] https://bugzilla.mozilla.org/1319773#c22
+ * [2] https://bugzilla.mozilla.org/1492607
+ * [3] https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage ***/
+   // user_pref("privacy.firstparty.isolate.restrict_opener_access", true); // [DEFAULT: true]
+   // user_pref("privacy.firstparty.isolate.block_post_message", true); // [HIDDEN PREF ESR]
+/* 4003: enable site partitioning (FF78+)
+ * [1] https://bugzilla.mozilla.org/1590107 [META] */
+user_pref("privacy.partition.network_state", true);
 
 user_pref("network.dnsCacheExpiration", 0);
 user_pref("network.dnsCacheExpirationGracePeriod", 0);
